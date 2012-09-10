@@ -6,7 +6,7 @@ import java.util.Arrays;
  */
 public class Brute {
 
-	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/input100.txt";
+	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/input6.txt";
 
 	private int[] inputCoord = null;
 	private Point[] points = null;
@@ -53,10 +53,8 @@ public class Brute {
 			}
 			points[i - 1] = point;
 
-			// System.out.println((i - 1) + " -> " + Arrays.toString(points));
 			j += 2;
 		}
-		// System.out.println("***********");
 	}
 
 	private void processPoints() {
