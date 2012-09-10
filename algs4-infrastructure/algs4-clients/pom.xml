@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.princeton</groupId>
+		<artifactId>algs4-infrastructure</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>algs4-clients</artifactId>
+	
+	<name>Algs 4th ed - algorithms and clients</name>
+	<description>Algorithms and clients in the textbook. Contains a few more than 100 Java programs (some are clients, some others are basic infrastructure).</description>
+	
+	<dependencies>
+		<dependency>
+			<groupId>edu.princeton</groupId>
+			<artifactId>algs4-stdlib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+</project>

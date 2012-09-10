@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>github.com.ekis</groupId>
+	<artifactId>algorithms</artifactId>
+
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Algorithms [ROOT]</name>
+	<description>Description</description>
+
+	<properties>
+		<!-- Maven -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
+		<!-- Princeton -->
+		<algs4-stdlib.version>1.0.0-SNAPSHOT</algs4-stdlib.version>
+		<algs4-clients.version>1.0.0-SNAPSHOT</algs4-clients.version>
+		<!-- Other -->
+		<junit.version>4.10</junit.version>
+		<google-guava.version>13.0</google-guava.version>
+	</properties>
+
+	<modules>
+		<module>exercises</module>
+		<module>coursera-part1</module>
+		<module>coursera-part2</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>edu.princeton</groupId>
+				<artifactId>algs4-stdlib</artifactId>
+				<version>${algs4-stdlib.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>edu.princeton</groupId>
+				<artifactId>algs4-clients</artifactId>
+				<version>${algs4-clients.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${google-guava.version}</version>
+				<scope>compile</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
