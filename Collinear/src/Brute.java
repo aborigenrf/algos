@@ -15,27 +15,7 @@ public class Brute {
 	public Brute(int[] inputCoord) {
 		this.inputCoord = inputCoord;
 		points = new Point[inputCoord[0]]; // first entry in input file
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		int[] inputCoord = In.readInts(INPUT);
-
-		// rescale coordinates and turn on animation mode
-		StdDraw.setXscale(0, 32768);
-		StdDraw.setYscale(0, 32768);
-		StdDraw.setPenRadius(0.005);
-		StdDraw.setPenColor(StdDraw.BOOK_RED);
-		StdDraw.show(0);
-
-		Brute b = new Brute(inputCoord);
-		b.loadPoints();
-		b.processPoints();
-
-		// display to screen all at once
-		StdDraw.show(0);
+		loadPoints();
 	}
 
 	private void loadPoints() {
@@ -55,6 +35,26 @@ public class Brute {
 
 			j += 2;
 		}
+	}
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		int[] inputCoord = In.readInts(INPUT);
+
+		// rescale coordinates and turn on animation mode
+		StdDraw.setXscale(0, 32768);
+		StdDraw.setYscale(0, 32768);
+		StdDraw.setPenRadius(0.005);
+		StdDraw.setPenColor(StdDraw.BOOK_RED);
+		StdDraw.show(0);
+
+		Brute b = new Brute(inputCoord);
+		b.processPoints();
+
+		// display to screen all at once
+		StdDraw.show(0);
 	}
 
 	private void processPoints() {
