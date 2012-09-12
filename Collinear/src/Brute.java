@@ -12,12 +12,6 @@ public class Brute {
 	private Point[] points = null;
 	private static final String MARKER = " -> ";
 
-	public Brute(int[] inputCoord) {
-		this.inputCoord = inputCoord;
-		points = new Point[inputCoord[0]]; // first entry in input file
-		loadPoints();
-	}
-
 	private void loadPoints() {
 		int pointNo = inputCoord[0];
 
@@ -41,16 +35,20 @@ public class Brute {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		int[] inputCoord = In.readInts(INPUT);
+		//int[] inputCoord = In.readInts(INPUT);
+		int[] inputCoord = In.readInts(args[0]);
 
 		// rescale coordinates and turn on animation mode
 		StdDraw.setXscale(0, 32768);
 		StdDraw.setYscale(0, 32768);
-		StdDraw.setPenRadius(0.005);
-		StdDraw.setPenColor(StdDraw.BOOK_RED);
+		// StdDraw.setPenRadius(0.005);
+		// StdDraw.setPenColor(StdDraw.BOOK_RED);
 		StdDraw.show(0);
 
-		Brute b = new Brute(inputCoord);
+		Brute b = new Brute();
+		b.inputCoord = inputCoord;
+		b.points = new Point[inputCoord[0]]; // first entry in input file
+		b.loadPoints();
 		b.processPoints();
 
 		// display to screen all at once
@@ -60,14 +58,15 @@ public class Brute {
 	private void processPoints() {
 		int len = points.length;
 		Arrays.sort(points);
+		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < len; i++) { // p-points
 			Point p = points[i];
-			p.draw();
+//			p.draw();
 
 			for (int j = i + 1; j < len; j++) { // q-points
 				Point q = points[j];
-				q.draw();
+//				q.draw();
 				// StdOut.println("P -- Q analysis");
 				Double pqSlope = analyzePoint(p, q);
 				if (pqSlope == null)
@@ -75,7 +74,7 @@ public class Brute {
 
 				for (int k = j + 1; k < len; k++) { // r-points
 					Point r = points[k];
-					r.draw();
+//					r.draw();
 					// StdOut.println("P -- R analysis");
 					Double prSlope = analyzePoint(p, r);
 					if (prSlope == null)
@@ -84,13 +83,21 @@ public class Brute {
 					if (pqSlope.equals(prSlope)) { // reduce N^4 to N^3
 						for (int l = k + 1; l < len; l++) { // s-points
 							Point s = points[l];
-							s.draw();
+//							s.draw();
 							// StdOut.println("P -- S analysis");
 							Double psSlope = analyzePoint(p, s);
 							if (psSlope == null)
 								break;
 							if (pqSlope.equals(psSlope)) {
-								StdOut.println(p.toString() + MARKER + q.toString() + MARKER + r.toString() + MARKER + s.toString());
+								// StdOut.println(p.toString() + MARKER + q.toString() + MARKER + r.toString() + MARKER + s.toString());
+								sb.append(p);
+								sb.append(MARKER);
+								sb.append(q);
+								sb.append(MARKER);
+								sb.append(r);
+								sb.append(MARKER);
+								sb.append(s);
+								sb.append("\n");
 								p.drawTo(s);
 							}
 						}
@@ -98,11 +105,11 @@ public class Brute {
 				}
 			}
 		}
+		StdOut.print(sb.toString());
 	}
 
 	private Double analyzePoint(Point x, Point y) {
 		// StdOut.println("Analyze points: X" + x.toString() + "; Y" + y.toString() + "....");
-
 		int xLesserThanY = x.compareTo(y);
 		if (xLesserThanY == -1) {
 			return x.slopeTo(y);
@@ -110,6 +117,5 @@ public class Brute {
 			// StdOut.println("Returning null - x.compareTo(y) is: " + x.compareTo(y));
 			return null;
 		}
-
 	}
 }
