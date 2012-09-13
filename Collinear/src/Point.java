@@ -26,7 +26,8 @@ public class Point implements Comparable<Point> {
 	 * Treats horizontal, vertical, and degenerate line segments as in the slopeTo() method.
 	 */
 	private final class SlopeOrderComparator implements Comparator<Point> {
-		Point invokingPoint = Point.this;		
+		Point invokingPoint = Point.this;
+//		Point a = Point.this;
 		
 		@Override
 		public int compare(Point o1, Point o2) {
@@ -37,6 +38,14 @@ public class Point implements Comparable<Point> {
 			if (slopeToO1 > slopeToO2) return 1;
 			return 0; // remember, total ordering guarantees 0 will be returned when slopes are equal.
 		}
+		
+//		@Override
+//		public int compare(Point b, Point c) {
+//			double area2 = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+//			if (area2 < 0 ) return -1; // cw
+//			else if (area2 > 0) return 1; // ccw
+//			else return 0; // collinear
+//		}
 	}
 
 	/**
