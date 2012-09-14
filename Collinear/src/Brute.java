@@ -7,6 +7,8 @@ import java.util.Arrays;
 public class Brute {
 
 	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/equidistant.txt";
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/horizontal5.txt";
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/input40.txt";
 
 	private int[] inputCoord = null;
 	private Point[] points = null;
