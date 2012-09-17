@@ -1,3 +1,4 @@
+
 /**
  * @author Erik
  * 
@@ -9,20 +10,23 @@ public class Solver {
 	public Solver(Board initial) { // find a solution to the initial board (using the A* algorithm)
 
 	};
+	
+	private class SearchNode {
+		private int moves; // the number of moves made to reach the board
+		private Board board;
+		private SearchNode previousNode; // previous search node
+	};
 
 	public boolean isSolvable() {
 		return false; // is the initial board solvable?
-
 	};
 
 	public int moves() {
 		return 0; // min number of moves to solve initial board; -1 if no solution
-
 	};
 
 	public Iterable<Board> solution() {
 		return null; // sequence of boards in a shortest solution; null if no solution
-
 	};
 
 	public static void main(String[] args) { // solve a slider puzzle (given below)
@@ -48,5 +52,4 @@ public class Solver {
 				StdOut.println(board);
 		}
 	}
-
 }

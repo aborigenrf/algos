@@ -4,11 +4,12 @@
  */
 public class Board {
 	private int N = 0;
+	private int[][] tiles;
 	
 	public Board(int[][] blocks) {// construct a board from an N-by-N array of blocks (where blocks[i][j] = block in row i, column j)
-
-	}; 
-
+		this.tiles = blocks;
+	};
+	
 	public int dimension() {
 		return 0; // board dimension N
 	};
