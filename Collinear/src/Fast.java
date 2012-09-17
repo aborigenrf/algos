@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class Fast {
 
-	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/equidistant.txt";
+	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/inarow.txt";
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/horizontal5.txt";
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/input40.txt";
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/collinear/input100.txt";
 
 	private int[] inputCoord = null;
 	private Point[] loadedPoints = null;
@@ -108,7 +108,7 @@ public class Fast {
 								printList(printOut, sb);
 								//printOut = null;
 								breakOut = true;
-								System.out.println("****** HIT 1 with P -> " + p + ", Q -> " + q + ", B -> " + b + ", currentSlope -> " + currentSlope + ", q.slopeTo(b) -> " + q.slopeTo(b));
+								//System.out.println("****** HIT 1 with P -> " + p + ", Q -> " + q + ", B -> " + b + ", currentSlope -> " + currentSlope + ", q.slopeTo(b) -> " + q.slopeTo(b));
 								break;
 							}
 						}
@@ -135,7 +135,7 @@ public class Fast {
 						Point b = processedPoints[k];
 						if (currentSlope.equals(q.slopeTo(b))) {
 							breakOut = true;
-							System.out.println("****** HIT 2 with P -> " + p + ", Q -> " + q + ", B -> " + b + ", currentSlope -> " + currentSlope + ", q.slopeTo(b) -> " + q.slopeTo(b));
+							//System.out.println("****** HIT 2 with P -> " + p + ", Q -> " + q + ", B -> " + b + ", currentSlope -> " + currentSlope + ", q.slopeTo(b) -> " + q.slopeTo(b));
 							break;
 						}
 					}
@@ -173,13 +173,15 @@ public class Fast {
 	 */
 	private void printList(List<Point> printOut, StringBuilder sb) {
 		if (printOut != null) {
+			int lineSegmentLen = printOut.size();
+			if (lineSegmentLen < 4) return;
 			Collections.sort(printOut);
-			for (int k = 0; k < printOut.size(); k++) {
+			for (int k = 0; k < lineSegmentLen; k++) {
 				sb.append(printOut.get(k));
 				if (k != printOut.size() - 1)
 					sb.append(MARKER);
 				if (k == printOut.size() - 1) {
-					sb.append("; Line slope -> " + printOut.get(0).slopeTo(printOut.get(k)));
+					//sb.append("; Line slope -> " + printOut.get(0).slopeTo(printOut.get(k)));
 					printOut.get(0).drawTo(printOut.get(k));
 					sb.append("\n");
 				}
