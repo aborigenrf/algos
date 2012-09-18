@@ -4,19 +4,26 @@
  * 
  */
 public class Solver {
-
-	private static final String INPUT = "";
+	
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt"; // 2x2
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle00.txt"; // 10x10
+	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
+	
+	private MinPQ<SearchNode> openSet;
+	private Queue<Board> solutionPath;
 
 	public Solver(Board initial) { // find a solution to the initial board (using the A* algorithm)
-
+		openSet = new MinPQ<SearchNode>();
+		solutionPath = new Queue<Board>();
 	};
 	
 	private class SearchNode {
-		private int moves; // the number of moves made to reach the board
+		private int moves = 0; // the number of moves made to reach the board
 		private Board board;
-		private SearchNode previousNode; // previous search node
+		private SearchNode previousNode = null; // previous search node
 	};
-
+	
 	public boolean isSolvable() {
 		return false; // is the initial board solvable?
 	};
@@ -39,17 +46,20 @@ public class Solver {
 			for (int j = 0; j < N; j++)
 				blocks[i][j] = in.readInt();
 		Board initial = new Board(blocks);
+		System.out.println("Board dimension -> " + initial.toString());
+		System.out.println("Hamming sum -> " + initial.hamming());
+		System.out.println("Manhattan sum -> " + initial.manhattan());
 
 		// solve the puzzle
-		Solver solver = new Solver(initial);
+		// Solver solver = new Solver(initial);
 
 		// print solution to standard output
-		if (!solver.isSolvable())
-			StdOut.println("No solution possible");
-		else {
-			StdOut.println("Minimum number of moves = " + solver.moves());
-			for (Board board : solver.solution())
-				StdOut.println(board);
-		}
+//		if (!solver.isSolvable())
+//			StdOut.println("No solution possible");
+//		else {
+//			StdOut.println("Minimum number of moves = " + solver.moves());
+//			for (Board board : solver.solution())
+//				StdOut.println(board);
+//		}
 	}
 }
