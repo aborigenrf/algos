@@ -39,6 +39,7 @@ public class Solver {
 	public static void main(String[] args) { // solve a slider puzzle (given below)
 		// create initial board from file
 		// In in = new In(args[0]);
+		System.out.println("SOLVER UNIT TEST");
 		In in = new In(INPUT);
 		int N = in.readInt();
 		int[][] blocks = new int[N][N];
