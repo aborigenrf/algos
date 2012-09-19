@@ -1,11 +1,10 @@
-import java.util.Arrays;
-
 /**
  * @author Erik
  *
  */
 public class Board {
 	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt";
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle02.txt";
 	
 	private int N; // board dimension
@@ -56,14 +55,30 @@ public class Board {
 		return manhattanDistanceSum;
 	};
 
-	public boolean isGoal() {
-		return tiles.equals(goalTiles); // is this board the goal board?
+	public boolean isGoal() { // is this board the goal board?
+		return tiles.equals(goalTiles); 
 	};
 
-	public Board twin() {
-		return null; // a board obtained by exchanging two adjacent blocks in the same row
+	public Board twin() { // a board obtained by exchanging two adjacent blocks in the same row
+		int[][] tilesClone = deepCloneArray(tiles);
+		boolean fullBreak = false;
+		for (int i = 0; i < N; i++) {
+			if (fullBreak) break;
+			for (int j = 0; j < N;) { // just try to swap first two elements; if we stumble upon zero, swap next row pair;
+				if (tilesClone[i][j] == 0 || tilesClone[i][j + 1] == 0) {
+					break;
+				}
+				int temp = tilesClone[i][j];
+				tilesClone[i][j] = tilesClone[i][j + 1];
+				tilesClone[i][j + 1] = temp;
+				fullBreak = true;
+				break;
+			}
+			if (fullBreak) break;
+		}
+		return new Board(tilesClone);
 	};
-
+	
 	public boolean equals(Object y) {
 		if (y == null) return false; // null check
 		if (y == this) return true; // reference check
@@ -77,7 +92,8 @@ public class Board {
 	};
 
 	public Iterable<Board> neighbors() { // all neighboring boards
-		neigbours = new Queue<Board>();
+		this.neigbours = new Queue<Board>();
+		populateNeighbourQueue();
 		return neigbours;
 	};
 
@@ -95,15 +111,10 @@ public class Board {
 				if (tiles[i][j] == 0) { // while constructing goal board, detect initial coordinates of zero element
 					zero[0] = i;
 					zero[1] = j;
-					System.out.println("Zero element detected at -> (" + zero[0] + "," + zero[1] + ")");
 				}
-				if (k < N*N) 
-					goalTiles[i][j] = k++;
-				else
-					goalTiles[i][j] = 0;
+				if (k < N*N) goalTiles[i][j] = k++;
+				else goalTiles[i][j] = 0;
 			}
-//		System.out.println("Goal Board:");
-//		System.out.println(constructFormattedArray(goalTiles));
 	}
 	
 	private String constructFormattedArray(int[][] array) {
@@ -118,72 +129,154 @@ public class Board {
 		return s.toString();
 	}
 	
-	private void swapUp() { // swap zero element to (i - 1) position
-		System.out.println("PRE-SWAP UP ->" + this.toString());
-		int i = zero[0];
-		int j = zero[1];
-		if ((i - 1) >= 0) {
-			int temp = tiles[i - 1][j];
-			tiles[i - 1][j] = 0;
-			tiles[i][j] = temp;
-			zero[0]--; // update new zero coordinate
-		} else {
-			System.out.println("Up limit reached");
+	// ------ NEIGHBOUR RETRIEVAL
+	
+	private void populateNeighbourQueue() {
+		if (swapUp()) {
+			int[][] neighbour = deepCloneArray(tiles);
+			swapDown(); // return board to previous position
+			enqueueNeighbour(neighbour);
 		}
-		System.out.println("POST-SWAP UP ->" + this.toString());
+		if (swapDown()) {
+			int[][] neighbour = deepCloneArray(tiles);
+			swapUp(); // return board to previous position
+			enqueueNeighbour(neighbour);
+		}
+		if (swapLeft()) {
+			int[][] neighbour = deepCloneArray(tiles);
+			swapRight(); // return board to previous position
+			enqueueNeighbour(neighbour);
+		}
+		if (swapRight()) {
+			int[][] neighbour = deepCloneArray(tiles);
+			swapLeft(); // return board to previous position
+			enqueueNeighbour(neighbour);
+		}
 	}
 	
-	private void swapDown() { // swap zero element to (i + 1) position
-		System.out.println("PRE-SWAP DOWN ->" + this.toString());
-		int i = zero[0];
-		int j = zero[1];
-		if ((i + 1) <= (N - 1)) {
-			int temp = tiles[i + 1][j];
-			tiles[i + 1][j] = 0;
-			tiles[i][j] = temp;
-			zero[0]++; // update new zero coordinate
-		} else {
-			System.out.println("Down limit reached");
-		}
-		System.out.println("POST-SWAP DOWN ->" + this.toString());
+	private void enqueueNeighbour(int[][] neighbour) {
+		Board board = new Board(neighbour);
+		neigbours.enqueue(board);
 	}
 	
-	private void swapLeft() { // swap zero element to (j - 1) position
-		System.out.println("PRE-SWAP LEFT ->" + this.toString());
-		int i = zero[0];
-		int j = zero[1];
-		if ((j - 1) >= 0) {
-			int temp = tiles[i][j - 1];
-			tiles[i][j - 1] = 0;
-			tiles[i][j] = temp;
-			zero[1]--; // update new zero coordinate
-		} else {
-			System.out.println("Left limit reached");
+	private int[][] deepCloneArray(int[][] array) {
+		int[][] newArray = new int[N][];
+		for (int i = 0; i < N; i++) {
+			newArray[i] = array[i].clone();
 		}
-		System.out.println("POST-SWAP LEFT ->" + this.toString());
+		return newArray;
 	}
 	
-	private void swapRight() { // swap zero element to (j + 1) position
-		System.out.println("PRE-SWAP RIGHT ->" + this.toString());
+	// ------- PERFORM SWAPS
+	
+	private boolean swapUp() { // swap zero element to (i - 1) position
+		return swapZeroWith(zero[0] - 1, zero[1]);
+	}
+	
+	private boolean swapDown() { // swap zero element to (i + 1) position
+		return swapZeroWith(zero[0] + 1, zero[1]);
+	}
+	
+	private boolean swapLeft() { // swap zero element to (j - 1) position
+		return swapZeroWith(zero[0], zero[1] - 1);
+	}
+	
+	private boolean swapRight() { // swap zero element to (j + 1) position
+		return swapZeroWith(zero[0], zero[1] + 1);
+	}
+	
+	private boolean swapZeroWith(int x, int y) {
 		int i = zero[0];
 		int j = zero[1];
-		if ((j + 1) <= (N - 1)) {
-			int temp = tiles[i][j + 1];
-			tiles[i][j + 1] = 0;
-			tiles[i][j] = temp;
-			zero[1]++; // update new zero coordinate
-		} else {
-			System.out.println("Right limit reached");
+		
+		if (y == j) { // swap horizontally (move on x-axis)
+			if (x == (i - 1) && x >= 0) { // swap up and check we don't go over board
+				int temp = tiles[i - 1][j];
+				tiles[i - 1][j] = 0;
+				tiles[i][j] = temp;
+				zero[0]--; // update zero x-coord
+				return true;
+			} else if (x == (i + 1) && x <= (N - 1)) { // swap down and check we don't go over board
+				int temp = tiles[i + 1][j];
+				tiles[i + 1][j] = 0;
+				tiles[i][j] = temp;
+				zero[0]++; // update zero x-coord
+				return true;
+			} else { // if-checks failed, we wanted to move over board
+				System.out.println("Horizontal max reached.");
+				return false;
+			}
+		} else if (x == i) { // swap vertically (move on y-axis)
+			if (y == (j - 1) && y >= 0) { // swap left and check we don't go over board
+				int temp = tiles[i][j - 1];
+				tiles[i][j - 1] = 0;
+				tiles[i][j] = temp;
+				zero[1]--; // update zero y-coord
+				return true;
+			} else if (y == (j + 1) && y <= (N - 1)) { // swap right and check we don't go over board
+				int temp = tiles[i][j + 1];
+				tiles[i][j + 1] = 0;
+				tiles[i][j] = temp;
+				zero[1]++; // update zero y-coord
+				return true;
+			} else { // if-checks failed, we wanted to move over board
+				System.out.println("Vertical max reached.");
+				return false;
+			}
+		} else { // this is not supposed to happen - ever
+			throw new IllegalArgumentException("Illegal zero swap!");
 		}
-		System.out.println("POST-SWAP RIGHT ->" + this.toString());
 	}
 	
 	public static void main(String[] args) {
 		System.out.println("PUZZLE UNIT TEST");
-		int[][] blocks = readFromFile();
 		
+		// swapXXX() unit tests
+		int[][] blocks = readFromFile();
 		Board initial = new Board(blocks);
+		System.out.println("PRE-SWAP UP -> " + initial.toString());
 		initial.swapUp();
+		System.out.println("MID-SWAP UP -> " + initial.toString());
+		initial.swapUp();
+		System.out.println("POST-SWAP UP -> " + initial.toString());
+		
+		blocks = readFromFile();
+		initial = new Board(blocks);
+		System.out.println("PRE-SWAP DOWN -> " + initial.toString());
+		initial.swapDown();
+		System.out.println("MID-SWAP DOWN -> " + initial.toString());
+		initial.swapDown();
+		System.out.println("POST-SWAP DOWN -> " + initial.toString());
+		
+		blocks = readFromFile();
+		initial = new Board(blocks);
+		System.out.println("PRE-SWAP LEFT -> " + initial.toString());
+		initial.swapLeft();
+		System.out.println("MID-SWAP LEFT -> " + initial.toString());
+		initial.swapLeft();
+		System.out.println("POST-SWAP LEFT -> " + initial.toString());
+		
+		blocks = readFromFile();
+		initial = new Board(blocks);
+		System.out.println("PRE-SWAP RIGHT -> " + initial.toString());
+		initial.swapRight();
+		System.out.println("MID-SWAP RIGHT -> " + initial.toString());
+		initial.swapRight();
+		System.out.println("POST-SWAP RIGHT -> " + initial.toString());
+		
+		// neighbour queue unit test
+		blocks = readFromFile();
+		initial = new Board(blocks);
+		Queue<Board> testQueue = (Queue<Board>) initial.neighbors();
+		for (Board i: testQueue) {
+			System.out.println("Board dequeued -> " + i.toString());
+		}
+		
+		// twin() unit test
+		blocks = readFromFile();
+		initial = new Board(blocks);
+		System.out.println("ORIGINAL -> " + initial.toString());
+		System.out.println("TWIN     -> " + initial.twin().toString());
 	}
 	
 	private static int[][] readFromFile() {
