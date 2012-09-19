@@ -13,18 +13,29 @@ public class Board {
 	private int[][] goalTiles; // target board tiles
 	private Queue<Board> neigbours; // contains all neighbouring boards (those that can be reached in one move from the dequeued search node)
 	
-	public Board(int[][] blocks) {// construct a board from an N-by-N array of blocks (where blocks[i][j] = block in row i, column j)
+	/**
+	 * Construct a {@link Board} instance from an N-by-N array of blocks (where blocks[i][j] = block in row i, column j)
+	 * 
+	 * @param blocks
+	 */
+	public Board(int[][] blocks) {// 
 		this.tiles = blocks;
 		this.zero = new int[2];
 		this.N = tiles.length;
 		constructGoalBoard();
 	};
 	
+	/**
+	 * @return board dimension N
+	 */
 	public int dimension() {
-		return N; // board dimension N
+		return N;
 	};
 
-	public int hamming() { // number of blocks out of place
+	/**
+	 * @return number of blocks out of place
+	 */
+	public int hamming() { // 
 		int count = 0;
 		int detected;
 		int expected;
@@ -39,7 +50,10 @@ public class Board {
 		return count;
 	};
 
-	public int manhattan() { // sum of Manhattan distances between blocks and goal
+	/**
+	 * @return sum of Manhattan distances between blocks and goal
+	 */
+	public int manhattan() {
 		int manhattanDistanceSum = 0;
 		for (int x = 0; x < N; x++) // x-dimension, traversing rows (i)
 			for (int y = 0; y < N; y++) { // y-dimension, traversing cols (j)
@@ -55,11 +69,20 @@ public class Board {
 		return manhattanDistanceSum;
 	};
 
-	public boolean isGoal() { // is this board the goal board?
+	/**
+	 * @return is this board the goal board?
+	 */
+	public boolean isGoal() {
 		return tiles.equals(goalTiles); 
 	};
 
-	public Board twin() { // a board obtained by exchanging two adjacent blocks in the same row
+	/**
+	 * Returns a twin board of this {@link Board}. 
+	 * Essentially, we just try to swap first two elements - if we find a zero in these two, just jump to next row and perform swap there. 
+	 * 
+	 * @return a board obtained by exchanging two adjacent blocks in the same row
+	 */
+	public Board twin() {
 		int[][] tilesClone = deepCloneArray(tiles);
 		boolean fullBreak = false;
 		for (int i = 0; i < N; i++) {
@@ -79,6 +102,9 @@ public class Board {
 		return new Board(tilesClone);
 	};
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object y) {
 		if (y == null) return false; // null check
 		if (y == this) return true; // reference check
@@ -91,18 +117,27 @@ public class Board {
 		return true;
 	};
 
-	public Iterable<Board> neighbors() { // all neighboring boards
+	/**
+	 * @return all neighboring boards
+	 */
+	public Iterable<Board> neighbors() {
 		this.neigbours = new Queue<Board>();
 		populateNeighbourQueue();
 		return neigbours;
 	};
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() { // string representation of the board (in the output format specified below)
 		return constructFormattedArray(tiles);
 	};
 	
 	// -------- PRIVATE METHODS
 	
+	/**
+	 * Constructs a board with values {1, 2....N}. Stored in {@link Board} local variable.
+	 */
 	private void constructGoalBoard() {
 		goalTiles = new int[N][N];
 		int k = 1;
@@ -117,6 +152,12 @@ public class Board {
 			}
 	}
 	
+	/**
+	 * Pretty-prints a given array.
+	 * 
+	 * @param array to be pretty-printed.
+	 * @return pretty-printed array as a {@link String}
+	 */
 	private String constructFormattedArray(int[][] array) {
 		StringBuilder s = new StringBuilder();
 		s.append(N + "\n");
@@ -130,7 +171,9 @@ public class Board {
 	}
 	
 	// ------ NEIGHBOUR RETRIEVAL
-	
+	/**
+	 * Populates instance queue of neighbour boards by constructing boards containing swapped zero element with adjacent elements. 
+	 */
 	private void populateNeighbourQueue() {
 		if (swapUp()) {
 			int[][] neighbour = deepCloneArray(tiles);
@@ -154,6 +197,11 @@ public class Board {
 		}
 	}
 	
+	/**
+	 * Creates a new neigbour {@link Board} and enqueues it.
+	 * 
+	 * @param neighbour
+	 */
 	private void enqueueNeighbour(int[][] neighbour) {
 		Board board = new Board(neighbour);
 		neigbours.enqueue(board);
@@ -168,23 +216,49 @@ public class Board {
 	}
 	
 	// ------- PERFORM SWAPS
-	
+	/**
+	 * Swaps zero element with element directly above it.
+	 * 
+	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
+	 */
 	private boolean swapUp() { // swap zero element to (i - 1) position
 		return swapZeroWith(zero[0] - 1, zero[1]);
 	}
 	
+	/**
+	 * Swaps zero element with element directly below it.
+	 * 
+	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
+	 */
 	private boolean swapDown() { // swap zero element to (i + 1) position
 		return swapZeroWith(zero[0] + 1, zero[1]);
 	}
 	
+	/**
+	 * Swaps zero element with element directly left of it.
+	 * 
+	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
+	 */
 	private boolean swapLeft() { // swap zero element to (j - 1) position
 		return swapZeroWith(zero[0], zero[1] - 1);
 	}
 	
+	/**
+	 * Swaps zero element with element directly right of it.
+	 * 
+	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
+	 */
 	private boolean swapRight() { // swap zero element to (j + 1) position
 		return swapZeroWith(zero[0], zero[1] + 1);
 	}
 	
+	/**
+	 * Performs actually zero-element swapping and array boundary checks.
+	 * 
+	 * @param x x-coordinate of array element that zero-element is swapped with
+	 * @param y y-coordinate of array element that zero-element is swapped with
+	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
+	 */
 	private boolean swapZeroWith(int x, int y) {
 		int i = zero[0];
 		int j = zero[1];
@@ -279,6 +353,11 @@ public class Board {
 		System.out.println("TWIN     -> " + initial.twin().toString());
 	}
 	
+	/**
+	 * Reads input file and returns an array of integers.
+	 * 
+	 * @return
+	 */
 	private static int[][] readFromFile() {
 		In in = new In(INPUT);
 		int N = in.readInt();
