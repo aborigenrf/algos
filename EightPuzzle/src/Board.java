@@ -40,31 +40,19 @@ public class Board {
 		for (int x = 0; x < N; x++) // x-dimension, traversing rows
 			for (int y = 0; y < N; y++) { // y-dimension, traversing cols
 				int value = tiles[x][y];
-				if (value != 0) {
+				if (value != 0) { // we don't compute MD for element 0
 					int targetX = (value - 1) / N; // expected x-coordinate (row)
 					int targetY = (value - 1) % N; // expected y-coordinate (col)
-					System.out.println("Value " + value + " referent coordinates (" + targetX + ", " + targetY + ")");
+//					System.out.println("Value " + value + " referent coordinates (" + targetX + ", " + targetY + ")");
 					int dx = x - targetX; 
 					int dy = y - targetY;
-					System.out.println("Value " + value + " detected at coordinates (" + x + ", " + y + "); dx, dy -> " + dx + ", " + dy);
-					System.out.println("Calculated manhattan distance -> " + (Math.abs(dx) + Math.abs(dy)));
-					System.out.println("Manhattan distance sum state prior -> " + manhattanDistanceSum);
+//					System.out.println("Value " + value + " detected at coordinates (" + x + ", " + y + "); dx, dy -> " + dx + ", " + dy);
+//					System.out.println("Calculated manhattan distance -> " + (Math.abs(dx) + Math.abs(dy)));
+//					System.out.println("Manhattan distance sum state prior -> " + manhattanDistanceSum);
 					manhattanDistanceSum += Math.abs(dx) + Math.abs(dy);
-					System.out.println("Manhattan distance sum state post -> " + manhattanDistanceSum);
-					System.out.println();
-				} else { // zero value is always in the lower right corner
-					int targetX = N;
-					int targetY = N;
-					System.out.println("Value " + value + " referent coordinates (" + targetX + ", " + targetY + ")");
-					int dx = x - targetX;
-					int dy = y - targetY;
-					System.out.println("Value " + value + " detected at coordinates (" + x + ", " + y + "); dx, dy -> " + dx + ", " + dy);
-					System.out.println("Calculated manhattan distance -> " + (Math.abs(dx) + Math.abs(dy)));
-					System.out.println("Manhattan distance sum state prior -> " + manhattanDistanceSum);
-					manhattanDistanceSum += Math.abs(dx) + Math.abs(dy);
-					System.out.println("Manhattan distance sum state post -> " + manhattanDistanceSum);
-					System.out.println();
-				}
+//					System.out.println("Manhattan distance sum state post -> " + manhattanDistanceSum);
+//					System.out.println();
+				} 
 			}
 		return manhattanDistanceSum;
 	};
