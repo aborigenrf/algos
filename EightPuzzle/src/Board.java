@@ -3,7 +3,7 @@
  *
  */
 public class Board {
-	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt";
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle02.txt";
 	
@@ -73,7 +73,8 @@ public class Board {
 	 * @return is this board the goal board?
 	 */
 	public boolean isGoal() {
-		return tiles.equals(goalTiles); 
+		Board goalBoard = new Board(goalTiles);
+		return this.equals(goalBoard);
 	};
 
 	/**
@@ -277,7 +278,6 @@ public class Board {
 				zero[0]++; // update zero x-coord
 				return true;
 			} else { // if-checks failed, we wanted to move outside board
-				System.out.println("Horizontal max reached.");
 				return false;
 			}
 		} else if (x == i) { // swap vertically (move on y-axis)
@@ -294,7 +294,6 @@ public class Board {
 				zero[1]++; // update zero y-coord
 				return true;
 			} else { // if-checks failed, we wanted to move outside board
-				System.out.println("Vertical max reached.");
 				return false;
 			}
 		} else { // this is not supposed to happen - ever
@@ -304,53 +303,53 @@ public class Board {
 	
 	public static void main(String[] args) {
 		System.out.println("PUZZLE UNIT TEST");
-		
-		// swapXXX() unit tests
-		int[][] blocks = readFromFile();
-		Board initial = new Board(blocks);
-		System.out.println("PRE-SWAP UP -> " + initial.toString());
-		initial.swapUp();
-		System.out.println("MID-SWAP UP -> " + initial.toString());
-		initial.swapUp();
-		System.out.println("POST-SWAP UP -> " + initial.toString());
-		
-		blocks = readFromFile();
-		initial = new Board(blocks);
-		System.out.println("PRE-SWAP DOWN -> " + initial.toString());
-		initial.swapDown();
-		System.out.println("MID-SWAP DOWN -> " + initial.toString());
-		initial.swapDown();
-		System.out.println("POST-SWAP DOWN -> " + initial.toString());
-		
-		blocks = readFromFile();
-		initial = new Board(blocks);
-		System.out.println("PRE-SWAP LEFT -> " + initial.toString());
-		initial.swapLeft();
-		System.out.println("MID-SWAP LEFT -> " + initial.toString());
-		initial.swapLeft();
-		System.out.println("POST-SWAP LEFT -> " + initial.toString());
-		
-		blocks = readFromFile();
-		initial = new Board(blocks);
-		System.out.println("PRE-SWAP RIGHT -> " + initial.toString());
-		initial.swapRight();
-		System.out.println("MID-SWAP RIGHT -> " + initial.toString());
-		initial.swapRight();
-		System.out.println("POST-SWAP RIGHT -> " + initial.toString());
-		
-		// neighbour queue unit test
-		blocks = readFromFile();
-		initial = new Board(blocks);
-		Queue<Board> testQueue = (Queue<Board>) initial.neighbors();
-		for (Board i: testQueue) {
-			System.out.println("Board dequeued -> " + i.toString());
-		}
-		
-		// twin() unit test
-		blocks = readFromFile();
-		initial = new Board(blocks);
-		System.out.println("ORIGINAL -> " + initial.toString());
-		System.out.println("TWIN     -> " + initial.twin().toString());
+//		
+//		// swapXXX() unit tests
+//		int[][] blocks = readFromFile();
+//		Board initial = new Board(blocks);
+//		System.out.println("PRE-SWAP UP -> " + initial.toString());
+//		initial.swapUp();
+//		System.out.println("MID-SWAP UP -> " + initial.toString());
+//		initial.swapUp();
+//		System.out.println("POST-SWAP UP -> " + initial.toString());
+//		
+//		blocks = readFromFile();
+//		initial = new Board(blocks);
+//		System.out.println("PRE-SWAP DOWN -> " + initial.toString());
+//		initial.swapDown();
+//		System.out.println("MID-SWAP DOWN -> " + initial.toString());
+//		initial.swapDown();
+//		System.out.println("POST-SWAP DOWN -> " + initial.toString());
+//		
+//		blocks = readFromFile();
+//		initial = new Board(blocks);
+//		System.out.println("PRE-SWAP LEFT -> " + initial.toString());
+//		initial.swapLeft();
+//		System.out.println("MID-SWAP LEFT -> " + initial.toString());
+//		initial.swapLeft();
+//		System.out.println("POST-SWAP LEFT -> " + initial.toString());
+//		
+//		blocks = readFromFile();
+//		initial = new Board(blocks);
+//		System.out.println("PRE-SWAP RIGHT -> " + initial.toString());
+//		initial.swapRight();
+//		System.out.println("MID-SWAP RIGHT -> " + initial.toString());
+//		initial.swapRight();
+//		System.out.println("POST-SWAP RIGHT -> " + initial.toString());
+//		
+//		// neighbour queue unit test
+//		blocks = readFromFile();
+//		initial = new Board(blocks);
+//		Queue<Board> testQueue = (Queue<Board>) initial.neighbors();
+//		for (Board i: testQueue) {
+//			System.out.println("Board dequeued -> " + i.toString());
+//		}
+//		
+//		// twin() unit test
+//		blocks = readFromFile();
+//		initial = new Board(blocks);
+//		System.out.println("ORIGINAL -> " + initial.toString());
+//		System.out.println("TWIN     -> " + initial.twin().toString());
 	}
 	
 	/**
@@ -358,14 +357,14 @@ public class Board {
 	 * 
 	 * @return
 	 */
-	private static int[][] readFromFile() {
-		In in = new In(INPUT);
-		int N = in.readInt();
-		int[][] blocks = new int[N][N];
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++)
-				blocks[i][j] = in.readInt();
-		
-		return blocks;
-	}
+//	private static int[][] readFromFile() {
+//		In in = new In(INPUT);
+//		int N = in.readInt();
+//		int[][] blocks = new int[N][N];
+//		for (int i = 0; i < N; i++)
+//			for (int j = 0; j < N; j++)
+//				blocks[i][j] = in.readInt();
+//		
+//		return blocks;
+//	}
 }
