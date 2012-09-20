@@ -276,7 +276,7 @@ public class Board {
 				tiles[i][j] = temp;
 				zero[0]++; // update zero x-coord
 				return true;
-			} else { // if-checks failed, we wanted to move over board
+			} else { // if-checks failed, we wanted to move outside board
 				System.out.println("Horizontal max reached.");
 				return false;
 			}
@@ -293,7 +293,7 @@ public class Board {
 				tiles[i][j] = temp;
 				zero[1]++; // update zero y-coord
 				return true;
-			} else { // if-checks failed, we wanted to move over board
+			} else { // if-checks failed, we wanted to move outside board
 				System.out.println("Vertical max reached.");
 				return false;
 			}

@@ -1,4 +1,3 @@
-
 /**
  * @author Erik
  * 
@@ -6,20 +5,25 @@
 public class Solver {
 	
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt"; // 2x2
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
+	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle00.txt"; // 10x10
-	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
 	
-	private MinPQ<SearchNode> openSet;
+	private int moves; // number of moves made for this particular puzzle
+	private Board initialBoard; // contains Board received from Solver constructor
+	private MinPQ<SearchNode> openSet; // the set of tentative nodes to be evaluated, initially containing the start search node
+	private MinPQ<SearchNode> twinBoardSet; // used to detect infeasible puzzles
 	private Queue<Board> solutionPath;
 
 	public Solver(Board initial) { // find a solution to the initial board (using the A* algorithm)
-		openSet = new MinPQ<SearchNode>();
-		solutionPath = new Queue<Board>();
+		this.initialBoard = initial;
+		this.openSet = new MinPQ<SearchNode>();
+		this.twinBoardSet = new MinPQ<SearchNode>();
+		this.solutionPath = new Queue<Board>();
 	};
 	
 	private class SearchNode {
-		private int moves = 0; // the number of moves made to reach the board
+		private int searchNodeMoves; // the number of moves made to reach the board
 		private Board board;
 		private SearchNode previousNode = null; // previous search node
 	};
@@ -32,9 +36,19 @@ public class Solver {
 		return 0; // min number of moves to solve initial board; -1 if no solution
 	};
 
-	public Iterable<Board> solution() {
-		return null; // sequence of boards in a shortest solution; null if no solution
+	public Iterable<Board> solution() { // sequence of boards in a shortest solution; null if no solution
+		SearchNode startSN = constructInitialSN();
+		
+		return solutionPath; 
 	};
+	
+	// ------ PRIVATE METHODS
+	private SearchNode constructInitialSN() {
+		SearchNode searchNode = new SearchNode();
+		searchNode.searchNodeMoves = 0;
+		searchNode.board = this.initialBoard;
+		return searchNode;
+	}
 
 	public static void main(String[] args) { // solve a slider puzzle (given below)
 		// create initial board from file
