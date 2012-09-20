@@ -8,8 +8,10 @@ public class Board {
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle02.txt";
 	
 	private int N; // board dimension
+	private int hammingDistance;
+	private int manhattanDistance;
 	private int[] zero; // current zero tile coordinates
-	private int[][] tiles; // current board tiles
+	private final int[][] tiles; // current board tiles
 	private int[][] goalTiles; // target board tiles
 	private Queue<Board> neigbours; // contains all neighbouring boards (those that can be reached in one move from the dequeued search node)
 	
@@ -23,6 +25,8 @@ public class Board {
 		this.zero = new int[2];
 		this.N = tiles.length;
 		constructGoalBoard();
+		calculateHammingDistance();
+		calculateManhattanDistance();
 	};
 	
 	/**
@@ -36,37 +40,14 @@ public class Board {
 	 * @return number of blocks out of place
 	 */
 	public int hamming() { // 
-		int count = 0;
-		int detected;
-		int expected;
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++) {
-				if (i == j && i == (N - 1)) break; // if last value in matrix, break immediately; if 0 is detected anywhere else, it's already counted in Hamming; if not, we know it's here and we know it's ok 
-				detected = tiles[i][j];
-				expected = goalTiles[i][j]; 
-				
-				if (detected != expected) count++;
-			}
-		return count;
+		return hammingDistance;
 	};
 
 	/**
 	 * @return sum of Manhattan distances between blocks and goal
 	 */
 	public int manhattan() {
-		int manhattanDistanceSum = 0;
-		for (int x = 0; x < N; x++) // x-dimension, traversing rows (i)
-			for (int y = 0; y < N; y++) { // y-dimension, traversing cols (j)
-				int value = tiles[x][y];
-				if (value != 0) { // we don't compute MD for element 0
-					int targetX = (value - 1) / N; // expected x-coordinate (row)
-					int targetY = (value - 1) % N; // expected y-coordinate (col)
-					int dx = x - targetX; // x-distance to expected coordinate
-					int dy = y - targetY; // y-distance to expected coordinate
-					manhattanDistanceSum += Math.abs(dx) + Math.abs(dy); 
-				} 
-			}
-		return manhattanDistanceSum;
+		return manhattanDistance;
 	};
 
 	/**
@@ -169,6 +150,43 @@ public class Board {
 			s.append("\n");
 		}
 		return s.toString();
+	}
+	
+	/**
+	 * Calculates sum of Hamming distances for this board and stores it in private field to promote immutability.
+	 */
+	private void calculateHammingDistance() {
+		int count = 0;
+		int detected;
+		int expected;
+		for (int i = 0; i < N; i++)
+			for (int j = 0; j < N; j++) {
+				if (i == j && i == (N - 1)) break; // if last value in matrix, break immediately; if 0 is detected anywhere else, it's already counted in Hamming; if not, we know it's here and we know it's ok 
+				detected = tiles[i][j];
+				expected = goalTiles[i][j]; 
+				
+				if (detected != expected) count++;
+			}
+		hammingDistance = count;
+	}
+	
+	/**
+	 * Calculates sum of Manhattan distances for this board and stores it in private field to promote immutability.
+	 */
+	private void calculateManhattanDistance() {
+		int manhattanDistanceSum = 0;
+		for (int x = 0; x < N; x++) // x-dimension, traversing rows (i)
+			for (int y = 0; y < N; y++) { // y-dimension, traversing cols (j)
+				int value = tiles[x][y];
+				if (value != 0) { // we don't compute MD for element 0
+					int targetX = (value - 1) / N; // expected x-coordinate (row)
+					int targetY = (value - 1) % N; // expected y-coordinate (col)
+					int dx = x - targetX; // x-distance to expected coordinate
+					int dy = y - targetY; // y-distance to expected coordinate
+					manhattanDistanceSum += Math.abs(dx) + Math.abs(dy); 
+				} 
+			}
+		manhattanDistance = manhattanDistanceSum;
 	}
 	
 	// ------ NEIGHBOUR RETRIEVAL
