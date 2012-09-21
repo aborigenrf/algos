@@ -11,7 +11,7 @@ public class Board {
 	private int hammingDistance;
 	private int manhattanDistance;
 	private int[] zero; // current zero tile coordinates
-	private final int[][] tiles; // current board tiles
+	private int[][] tiles; // current board tiles
 	private int[][] goalTiles; // target board tiles
 	private Queue<Board> neigbours; // contains all neighbouring boards (those that can be reached in one move from the dequeued search node)
 	
@@ -20,10 +20,10 @@ public class Board {
 	 * 
 	 * @param blocks
 	 */
-	public Board(int[][] blocks) {// 
-		this.tiles = blocks;
+	public Board(int[][] blocks) { 
+		this.N = blocks.length;
+		this.tiles = deepCloneArray(blocks);
 		this.zero = new int[2];
-		this.N = tiles.length;
 		constructGoalBoard();
 		calculateHammingDistance();
 		calculateManhattanDistance();
