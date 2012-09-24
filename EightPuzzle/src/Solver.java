@@ -1,6 +1,4 @@
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * @author Erik
@@ -9,18 +7,18 @@ import java.util.Set;
 public class Solver {
 	
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt"; // 2x2
-	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
+	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle36.txt"; // 10x10
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle3x3-unsolvable.txt";
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle11.txt";
+	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle11.txt";
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle20.txt";
 	
-//	private int moves; // number of moves made for this particular puzzle
+	private int moves; // number of moves made for this particular puzzle
 	private Board initialBoard; // contains Board received from Solver constructor
 //	private Board twinBoard; // contains a twin of initialBoard used to detect solution infeasibilty
 	private MinPQ<SearchNode> openSet; // priority queue of tentative nodes to be evaluated, initially containing the start search node
-	private Set<Board> closedSet; // set of visited boards
+//	private SET<SearchNode> closedSet; // set of visited search nodes
 //	private MinPQ<SearchNode> twinSet; // used to detect infeasible puzzles
 	private SearchNode finalSearchNode;
 	private Queue<Board> solutionPath;
@@ -30,10 +28,10 @@ public class Solver {
 	public Solver(Board initial) { // find a solution to the initial board (using the A* algorithm)
 		this.initialBoard = initial;
 		this.openSet = new MinPQ<SearchNode>();
-		this.closedSet = new HashSet<Board>();
+//		this.closedSet = new SET<SearchNode>();
 //		this.twinSet = new MinPQ<SearchNode>();
-//		this.twinBoard = initial.twin();
-//		this.moves = 1;
+//		this.twinBoard = initialBoard.twin();
+		this.moves = 1;
 		solvePuzzle();
 	};
 	
@@ -42,10 +40,16 @@ public class Solver {
 		private Board board;
 		private SearchNode previousNode; // previous search node
 		
+		public SearchNode(int moves, Board board, SearchNode previousNode) {
+			this.searchNodeMoves = moves;
+			this.board = board;
+			this.previousNode = previousNode;
+		}
+		
 		@Override
 		public int compareTo(SearchNode that) {
 			int thisPriority = this.board.manhattan() + searchNodeMoves;
-			int thatPriority = that.board.manhattan() + searchNodeMoves;
+			int thatPriority = that.board.manhattan() + searchNodeMoves + 1;
 			
 			if (thisPriority < thatPriority) 
 				return -1;
@@ -57,10 +61,10 @@ public class Solver {
 		/* (non-Javadoc)
 		 * @see java.lang.Object#toString()
 		 */
-		@Override
-		public String toString() {
-			return "SearchNode [searchNodeMoves=" + searchNodeMoves + ",\n board=" + board.toString() + ",\n previousNode=" + previousNode.board.toString() + "]";
-		}
+//		@Override
+//		public String toString() {
+//			return "SearchNode [searchNodeMoves=\n" + searchNodeMoves + ",\n board=" + board.toString() + ",\n previousNode=\n" + previousNode.board.toString() + "]";
+//		}
 	};
 	
 	public boolean isSolvable() { // is the initial board solvable?
@@ -69,99 +73,92 @@ public class Solver {
 
 	public int moves() { // min number of moves to solve initial board; -1 if no solution
 		if (!solvable) return -1;
-		return getSolutionMoves(finalSearchNode);
+		return moves;
 	};
 
 	public Iterable<Board> solution() { // sequence of boards in a shortest solution; null if no solution
+		moves = getSolutionMoves(finalSearchNode);
 		if (!solvable) return null;
-		solutionPath = new Queue<Board>();
-		getSolutionBoards(finalSearchNode);
+		
+		if (solutionPath == null) {
+			solutionPath = new Queue<Board>();
+			getSolutionBoards(finalSearchNode);
+		}
 		return solutionPath; 
 	};
 	
 	// ------ PRIVATE METHODS
 	private void solvePuzzle() {
-		int moves = 0;
+		SearchNode dequeuedNode = null;
 		
-		SearchNode startSN = constructSearchNode(moves, initialBoard, null); 
-		openSet.insert(startSN);
-//		SearchNode startTwinSN = constructSearchNode(0, twinBoard, null);
-//		twinSet.insert(startTwinSN);
+		if (openSet.isEmpty()) { // inital node construction
+			dequeuedNode = new SearchNode(0, initialBoard, null); 
+			openSet.insert(dequeuedNode);
+//			openSet.insert(new SearchNode(0, twinBoard, null));
+		}
 		
-		SearchNode leastCostNode = null;
-//		SearchNode twinLeastCostNode = null;
-		
-		do { // while solution is not found...
-			leastCostNode = openSet.delMin(); // dequeue node with least cost
-			closedSet.add(leastCostNode.board);
-//			twinLeastCostNode = twinSet.delMin(); 
-			
-			if (leastCostNode.board.isGoal()) { // solution found, so save the search node so that we can reconstruct solution
-				finalSearchNode = leastCostNode;
+		while (!openSet.isEmpty()) {
+			dequeuedNode = openSet.delMin(); // remove least-cost board
+			if (dequeuedNode.board.isGoal()) { // puzzle solving is complete
+				finalSearchNode = dequeuedNode;
+				solution();
+				return;
 			}
 			
-//			if (twinLeastCostNode.board.isGoal()) { // check if twin board is actually the solution; if it is, then the board solution is infeasible
-//				solvable = false;
-//				break;
-//			}
+//			StdOut.print("---> Selected path to solution at move " + dequeuedNode.searchNodeMoves + " <--- \n");
+//			printPath(dequeuedNode);
+//			StdOut.println("-------> END SELECT <-------");
 			
-			StdOut.print("---> Selected path to solution at move " + moves + " <--- \n");
-			printPath(leastCostNode);
-			StdOut.println("-------> END SELECT <-------");
-			
-			// advance target board solution
-			Iterator<Board> neighboursIterator = leastCostNode.board.neighbors().iterator(); // generate all least-cost node neighbours and enqueue them on the priority queue
-			StdOut.println("Printing neighbours....");
-			while (neighboursIterator.hasNext()) {
-				Board neighbourBoard = neighboursIterator.next();
-				int neighbourMove = moves + 1;
-				// critical optimization - to reduce unnecessary exploration of useless search nodes, when considering the neighbors of a search node,
-				// don't enqueue a neighbor if its board is the same as the board of the previous search node
-				SearchNode searchNode = constructSearchNode(neighbourMove, neighbourBoard, leastCostNode);
-				if (moves == 0) {
-					openSet.insert(searchNode);
-				} else if (!closedSet.contains(neighbourBoard)) { 
-					printPath(searchNode);
-					StdOut.println();
-					openSet.insert(searchNode);
-				} 
+			Iterator<Board> neighbours = dequeuedNode.board.neighbors().iterator(); // get neighbours of currently de-queued node
+			while (neighbours.hasNext()) {
+				Board neighbourBoard = neighbours.next();
+				int neighbourMove = dequeuedNode.searchNodeMoves + 1;
+				
+				SearchNode neighbourNode = new SearchNode(neighbourMove, neighbourBoard, dequeuedNode);
+				
+//				printPath(neighbourNode);
+				
+				if (dequeuedNode.previousNode != null && neighbourNode.board.equals(dequeuedNode.previousNode.board)) {
+//					StdOut.println("Neighbour node SKIPPED and NOT added to PQ!");
+					continue;
+				}
+				openSet.insert(neighbourNode);
+//				StdOut.println("Neighbour node added to priority queue.");
+//				StdOut.println();
 			}
 			
-//			StdOut.println("*****");
-//			StdOut.print("Selected ORIG path to solution at move " + moves + " ...\n");
-//			printPath(leastCostNode);
-//			StdOut.println();
-			
-			// advance twin board solution
-//			Iterator<Board> twinNeighboursIterator = twinLeastCostNode.board.neighbors().iterator();
-//			StdOut.println("Printing TWIN neighbours....");
-//			while (twinNeighboursIterator.hasNext()) {
-//				Board twinNeighbourBoard = twinNeighboursIterator.next();
-//				if (twinLeastCostNode.previousNode == null) {
-//					SearchNode twinSearchNode = constructSearchNode(moves, twinNeighbourBoard, twinLeastCostNode);
-//					printPath(twinSearchNode);
-//					StdOut.println();
-//					twinSet.insert(twinSearchNode);
-//				} else if (!twinLeastCostNode.previousNode.board.equals(twinNeighbourBoard)) {
-//					SearchNode twinSearchNode = constructSearchNode(moves, twinNeighbourBoard, twinLeastCostNode);
-//					printPath(twinSearchNode);
-//					StdOut.println();
-//					twinSet.insert(twinSearchNode);
-//				}
+//			StdOut.println("======== CURRENT OPEN SET STATE ==========");
+//			
+//			for (SearchNode sn : openSet) {
+//				printPath(sn);
 //			}
 //			
-//			StdOut.println("*****");
-//			StdOut.print("Selected TWIN path to solution at move " + moves + " ...\n");
-//			printPath(twinLeastCostNode);
-			StdOut.println("======== CURRENT OPEN SET STATE ==========");
-			
-			for (SearchNode sn : openSet) {
-				printPath(sn);
-			}
-			StdOut.println("********************* STEP " + moves + " COMPLETED *****************");
-			
-			moves++;
-		} while (!leastCostNode.board.isGoal());
+//			StdOut.println("********************* STEP " + dequeuedNode.searchNodeMoves + " COMPLETED *****************");
+		}
+	}
+	
+	/**
+	 * @param searchNode
+	 * @return
+	 */
+	private int getSolutionMoves(SearchNode searchNode) {
+		if (searchNode.previousNode == null) {
+//			if (searchNode.board.equals(twinBoard)) {
+//				solvable = false;
+//			}
+			return 0;
+		}
+		return 1 + getSolutionMoves(searchNode.previousNode);
+	}
+	
+	/**
+	 * @param searchNode
+	 */
+	private void getSolutionBoards(SearchNode searchNode) {
+		if (searchNode.previousNode != null) {
+			getSolutionBoards(searchNode.previousNode);
+		}
+		solutionPath.enqueue(searchNode.board);
 	}
 	
 	private void printPath(SearchNode node) {
@@ -170,30 +167,10 @@ public class Solver {
 		StdOut.print("Manhattan = " + node.board.manhattan() + "\n");
 		StdOut.print(node.board.toString());
 	}
-	
-	private SearchNode constructSearchNode(int moves, Board board, SearchNode previousNode) {
-		SearchNode searchNode = new SearchNode();
-		searchNode.searchNodeMoves = moves;
-		searchNode.board = board;
-		searchNode.previousNode = previousNode;
-		return searchNode;
-	}
-	
-	private int getSolutionMoves(SearchNode searchNode) {
-		if (searchNode.previousNode == null) return 0;
-		return 1 + getSolutionMoves(searchNode.previousNode);
-	}
-	
-	private void getSolutionBoards(SearchNode searchNode) {
-		if (searchNode.previousNode != null) {
-			getSolutionBoards(searchNode.previousNode);
-		}
-		solutionPath.enqueue(searchNode.board);
-	}
 
 	public static void main(String[] args) { // solve a slider puzzle (given below)
 		// create initial board from file
-		// In in = new In(args[0]);
+//		In in = new In(args[0]);
 //		System.out.println("SOLVER UNIT TEST");
 		In in = new In(INPUT);
 		int N = in.readInt();

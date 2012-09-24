@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /**
  * @author Erik
  *
@@ -95,7 +97,8 @@ public class Board {
 		if (this.tiles.length != that.tiles.length) return false; // matrix dimension check
 		for (int i = 0; i < N; i++)
 			for (int j = 0; j < N; j++)
-				if (this.tiles[i][j] != that.tiles[i][j]) return false; // cell value check
+				if (this.tiles[i][j] != that.tiles[i][j]) return false; 
+//		return Arrays.deepEquals(this.tiles, that.tiles); // cell value check
 		return true;
 	};
 
