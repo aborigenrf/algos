@@ -7,12 +7,12 @@ public class Board {
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt";
 	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle02.txt";
 	
-	private int N; // board dimension
-	private int hammingDistance;
-	private int manhattanDistance;
-	private int[] zero; // current zero tile coordinates
-	private int[][] tiles; // current board tiles
-	private int[][] goalTiles; // target board tiles
+	private short N; // board dimension
+	private short hammingDistance;
+	private short manhattanDistance;
+	private short[] zero; // current zero tile coordinates
+	private short[][] tiles; // current board tiles
+	//private short[][] goalTiles; // target board tiles
 	private Queue<Board> neigbours; // contains all neighbouring boards (those that can be reached in one move from the dequeued search node)
 	
 	/**
@@ -21,10 +21,10 @@ public class Board {
 	 * @param blocks
 	 */
 	public Board(int[][] blocks) { 
-		this.N = blocks.length;
+		this.N = (short) blocks.length;
 		this.tiles = deepCloneArray(blocks);
-		this.zero = new int[2];
-		constructGoalBoard();
+		this.zero = new short[2];
+		//constructGoalBoard();
 		calculateHammingDistance();
 		calculateManhattanDistance();
 	};
@@ -54,7 +54,7 @@ public class Board {
 	 * @return is this board the goal board?
 	 */
 	public boolean isGoal() {
-		Board goalBoard = new Board(goalTiles);
+		Board goalBoard = new Board(constructGoalBoard());
 		return this.equals(goalBoard);
 	};
 
@@ -65,17 +65,17 @@ public class Board {
 	 * @return a board obtained by exchanging two adjacent blocks in the same row
 	 */
 	public Board twin() {
-		int[][] tilesClone = deepCloneArray(tiles);
+		int[][] tilesClone = deepCloneArrayToInt(tiles);
 		boolean fullBreak = false;
-		for (int i = 0; i < N; i++) {
+		for (short i = 0; i < N; i++) {
 			if (fullBreak) break;
-			for (int j = 0; j < N;) { // just try to swap first two elements; if we stumble upon zero, swap next row pair;
+			for (short j = 0; j < N;) { // just try to swap first two elements; if we stumble upon zero, swap next row pair;
 				if (tilesClone[i][j] == 0 || tilesClone[i][j + 1] == 0) {
 					break;
 				}
 				int temp = tilesClone[i][j];
 				tilesClone[i][j] = tilesClone[i][j + 1];
-				tilesClone[i][j + 1] = temp;
+				tilesClone[i][j + 1] = (short) temp;
 				fullBreak = true;
 				break;
 			}
@@ -93,8 +93,8 @@ public class Board {
 		if (y.getClass() != this.getClass()) return false; // instance check
 		Board that = (Board) y;
 		if (this.tiles.length != that.tiles.length) return false; // matrix dimension check
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++)
+		for (short i = 0; i < N; i++)
+			for (short j = 0; j < N; j++)
 				if (this.tiles[i][j] != that.tiles[i][j]) return false; 
 //		return Arrays.deepEquals(this.tiles, that.tiles); // cell value check
 		return true;
@@ -121,11 +121,11 @@ public class Board {
 	/**
 	 * Constructs a board with values {1, 2....N}. Stored in {@link Board} local variable.
 	 */
-	private void constructGoalBoard() {
-		goalTiles = new int[N][N];
-		int k = 1;
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++) {
+	private int[][] constructGoalBoard() {
+		int[][] goalTiles = new int[N][N];
+		short k = 1;
+		for (short i = 0; i < N; i++)
+			for (short j = 0; j < N; j++) {
 				if (tiles[i][j] == 0) { // while constructing goal board, detect initial coordinates of zero element
 					zero[0] = i;
 					zero[1] = j;
@@ -133,6 +133,7 @@ public class Board {
 				if (k < N*N) goalTiles[i][j] = k++;
 				else goalTiles[i][j] = 0;
 			}
+		return goalTiles;
 	}
 	
 	/**
@@ -141,11 +142,11 @@ public class Board {
 	 * @param array to be pretty-printed.
 	 * @return pretty-printed array as a {@link String}
 	 */
-	private String constructFormattedArray(int[][] array) {
+	private String constructFormattedArray(short[][] array) {
 		StringBuilder s = new StringBuilder();
 		s.append(N + "\n");
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < N; j++) {
+		for (short i = 0; i < N; i++) {
+			for (short j = 0; j < N; j++) {
 				s.append(String.format("%2d ", array[i][j]));
 			}
 			s.append("\n");
@@ -157,37 +158,39 @@ public class Board {
 	 * Calculates sum of Hamming distances for this board and stores it in private field to promote immutability.
 	 */
 	private void calculateHammingDistance() {
-		int count = 0;
+		short count = 0;
 		int detected;
 		int expected;
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++) {
+		int[][] goalTiles = constructGoalBoard();
+		
+		for (short i = 0; i < N; i++)
+			for (short j = 0; j < N; j++) {
 				if (i == j && i == (N - 1)) break; // if last value in matrix, break immediately; if 0 is detected anywhere else, it's already counted in Hamming; if not, we know it's here and we know it's ok 
 				detected = tiles[i][j];
 				expected = goalTiles[i][j]; 
 				
 				if (detected != expected) count++;
 			}
-		hammingDistance = count;
+		hammingDistance = (short) count;
 	}
 	
 	/**
 	 * Calculates sum of Manhattan distances for this board and stores it in private field to promote immutability.
 	 */
 	private void calculateManhattanDistance() {
-		int manhattanDistanceSum = 0;
-		for (int x = 0; x < N; x++) // x-dimension, traversing rows (i)
-			for (int y = 0; y < N; y++) { // y-dimension, traversing cols (j)
+		short manhattanDistanceSum = 0;
+		for (short x = 0; x < N; x++) // x-dimension, traversing rows (i)
+			for (short y = 0; y < N; y++) { // y-dimension, traversing cols (j)
 				int value = tiles[x][y];
 				if (value != 0) { // we don't compute MD for element 0
-					int targetX = (value - 1) / N; // expected x-coordinate (row)
-					int targetY = (value - 1) % N; // expected y-coordinate (col)
-					int dx = x - targetX; // x-distance to expected coordinate
-					int dy = y - targetY; // y-distance to expected coordinate
+					short targetX = (short) ((value - 1) / N); // expected x-coordinate (row)
+					short targetY = (short) ((value - 1) % N); // expected y-coordinate (col)
+					short dx = (short) (x - targetX); // x-distance to expected coordinate
+					short dy = (short) (y - targetY); // y-distance to expected coordinate
 					manhattanDistanceSum += Math.abs(dx) + Math.abs(dy); 
 				} 
 			}
-		manhattanDistance = manhattanDistanceSum;
+		manhattanDistance = (short) manhattanDistanceSum;
 	}
 	
 	// ------ NEIGHBOUR RETRIEVAL
@@ -196,22 +199,22 @@ public class Board {
 	 */
 	private void populateNeighbourQueue() {
 		if (swapUp()) {
-			int[][] neighbour = deepCloneArray(tiles);
+			int[][] neighbour = deepCloneArrayToInt(tiles);
 			swapDown(); // return board to previous position
 			enqueueNeighbour(neighbour);
 		}
 		if (swapDown()) {
-			int[][] neighbour = deepCloneArray(tiles);
+			int[][] neighbour = deepCloneArrayToInt(tiles);
 			swapUp(); // return board to previous position
 			enqueueNeighbour(neighbour);
 		}
 		if (swapLeft()) {
-			int[][] neighbour = deepCloneArray(tiles);
+			int[][] neighbour = deepCloneArrayToInt(tiles);
 			swapRight(); // return board to previous position
 			enqueueNeighbour(neighbour);
 		}
 		if (swapRight()) {
-			int[][] neighbour = deepCloneArray(tiles);
+			int[][] neighbour = deepCloneArrayToInt(tiles);
 			swapLeft(); // return board to previous position
 			enqueueNeighbour(neighbour);
 		}
@@ -227,10 +230,33 @@ public class Board {
 		neigbours.enqueue(board);
 	}
 	
-	private int[][] deepCloneArray(int[][] array) {
-		int[][] newArray = new int[N][];
-		for (int i = 0; i < N; i++) {
-			newArray[i] = array[i].clone();
+	private short[][] deepCloneArray(int[][] blocks) {
+		short[][] newArray = new short[N][N];
+		for (short i = 0; i < N; i++) {
+			for (short j = 0; j < N; j++) {
+				newArray[i][j] = (short) blocks[i][j];
+			}
+		}
+		return newArray;
+	}
+	
+//	private short[][] deepCloneArray(short[][] blocks) {
+//		short[][] newArray = new short[N][];
+//		for (short i = 0; i < N; i++) {
+//			for (short j = 0; i < N; i++) {
+//				newArray[i][j] = blocks[i][j];
+//			}
+//			//newArray[i] = blocks[i].clone();
+//		}
+//		return newArray;
+//	}
+	
+	private int[][] deepCloneArrayToInt(short[][] blocks) {
+		int[][] newArray = new int[N][N];
+		for (short i = 0; i < N; i++) {
+			for (short j = 0; j < N; j++) {
+				newArray[i][j] = blocks[i][j];
+			}
 		}
 		return newArray;
 	}
@@ -242,7 +268,7 @@ public class Board {
 	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
 	 */
 	private boolean swapUp() { // swap zero element to (i - 1) position
-		return swapZeroWith(zero[0] - 1, zero[1]);
+		return swapZeroWith((short) (zero[0] - 1), zero[1]);
 	}
 	
 	/**
@@ -251,7 +277,7 @@ public class Board {
 	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
 	 */
 	private boolean swapDown() { // swap zero element to (i + 1) position
-		return swapZeroWith(zero[0] + 1, zero[1]);
+		return swapZeroWith((short) (zero[0] + 1), zero[1]);
 	}
 	
 	/**
@@ -260,7 +286,7 @@ public class Board {
 	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
 	 */
 	private boolean swapLeft() { // swap zero element to (j - 1) position
-		return swapZeroWith(zero[0], zero[1] - 1);
+		return swapZeroWith(zero[0], (short) (zero[1] - 1));
 	}
 	
 	/**
@@ -269,7 +295,7 @@ public class Board {
 	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
 	 */
 	private boolean swapRight() { // swap zero element to (j + 1) position
-		return swapZeroWith(zero[0], zero[1] + 1);
+		return swapZeroWith(zero[0], (short) (zero[1] + 1));
 	}
 	
 	/**
@@ -279,21 +305,21 @@ public class Board {
 	 * @param y y-coordinate of array element that zero-element is swapped with
 	 * @return TRUE if swap was successfull, FALSE if swap failed due to exceeded array limits
 	 */
-	private boolean swapZeroWith(int x, int y) {
-		int i = zero[0];
-		int j = zero[1];
+	private boolean swapZeroWith(short x, short y) {
+		short i = zero[0];
+		short j = zero[1];
 		
 		if (y == j) { // swap horizontally (move on x-axis)
 			if (x == (i - 1) && x >= 0) { // swap up and check we don't go over board
 				int temp = tiles[i - 1][j];
 				tiles[i - 1][j] = 0;
-				tiles[i][j] = temp;
+				tiles[i][j] = (short) temp;
 				zero[0]--; // update zero x-coord
 				return true;
 			} else if (x == (i + 1) && x <= (N - 1)) { // swap down and check we don't go over board
 				int temp = tiles[i + 1][j];
 				tiles[i + 1][j] = 0;
-				tiles[i][j] = temp;
+				tiles[i][j] = (short) temp;
 				zero[0]++; // update zero x-coord
 				return true;
 			} else { // if-checks failed, we wanted to move outside board
@@ -303,13 +329,13 @@ public class Board {
 			if (y == (j - 1) && y >= 0) { // swap left and check we don't go over board
 				int temp = tiles[i][j - 1];
 				tiles[i][j - 1] = 0;
-				tiles[i][j] = temp;
+				tiles[i][j] = (short) temp;
 				zero[1]--; // update zero y-coord
 				return true;
 			} else if (y == (j + 1) && y <= (N - 1)) { // swap right and check we don't go over board
 				int temp = tiles[i][j + 1];
 				tiles[i][j + 1] = 0;
-				tiles[i][j] = temp;
+				tiles[i][j] = (short) temp;
 				zero[1]++; // update zero y-coord
 				return true;
 			} else { // if-checks failed, we wanted to move outside board

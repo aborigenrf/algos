@@ -1,4 +1,3 @@
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -11,12 +10,12 @@ public class Solver {
 	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt"; // 2x2
 	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
 	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle36.txt"; // 10x10
-	private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle3x3-unsolvable.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle3x3-unsolvable.txt";
 	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/a.txt";
 	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle17.txt";
 	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle05.txt";
 	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle20.txt";
-	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/b.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle38.txt";
 	
 	private int moves; // number of moves made for this particular puzzle
 	private Board initialBoard; // contains Board received from Solver constructor
@@ -26,6 +25,10 @@ public class Solver {
 	private SearchNode finalSearchNode;
 	private Queue<Board> solutionPath;
 	
+	private int N; // board dimension
+	private int[][] tiles = null; // stores values parsed from initialBoard
+	private int[] zeroCoord = null; // stores coordinates of blank element
+	
 	private boolean solvable = true;
 
 	public Solver(Board initial) { // find a solution to the initial board (using the A* algorithm)
@@ -34,6 +37,12 @@ public class Solver {
 //		this.closedSet = new SET<SearchNode>();
 		this.cameFrom = new TreeSet<SearchNode>();
 		this.moves = 0;
+		
+		this.N = initialBoard.dimension();
+		this.tiles = new int[N][N];
+		this.zeroCoord = new int[2];
+		parseBoard();
+		
 		solvePuzzle();
 	};
 	
@@ -64,20 +73,6 @@ public class Solver {
 	public boolean isSolvable() { // is the initial board solvable?
 		if (solvable == false) return false;
 		int parity = 0;
-		int N = initialBoard.dimension();
-		int[][] tiles = null;
-		int[] zeroCoord = null;
-		try {
-			Field tilesField = initialBoard.getClass().getDeclaredField("tiles");
-			Field zeroCoordsField = initialBoard.getClass().getDeclaredField("zero");
-			tilesField.setAccessible(true);
-			zeroCoordsField.setAccessible(true);
-			tiles = (int[][]) tilesField.get(initialBoard);
-			zeroCoord = (int[]) zeroCoordsField.get(initialBoard);
-		} catch (NoSuchFieldException e) {
-		} catch (SecurityException e) {
-		} catch (IllegalArgumentException e) {
-		} catch (IllegalAccessException e) {}
 		
 		int endOffset = mapToVector(N - 1, N - 1);
 		for (int i = 1; i <= endOffset; i++) {
@@ -111,29 +106,13 @@ public class Solver {
 		return solvable; 
 	};
 	
-	private int mapToVector(int row, int col) {
-		int N = initialBoard.dimension();
-		int offset = (row * N + col);
-		return offset;
-	}
-	
-	private int[] mapFromVector(int offset) {
-		int[] array = new int[2];
-		int N = initialBoard.dimension();
-		int row = (int)(offset / N);
-		int col = offset - (row * N);
-		array[0] = row;
-		array[1] = col;
-		return array;
-	}
-	
 	public int moves() { // min number of moves to solve initial board; -1 if no solution
 		if (!solvable) return -1;
+		moves = getSolutionMoves(finalSearchNode);
 		return moves;
 	};
 
 	public Iterable<Board> solution() { // sequence of boards in a shortest solution; null if no solution
-		moves = getSolutionMoves(finalSearchNode);
 		if (!solvable) return null;
 		
 		if (solutionPath == null) {
@@ -217,18 +196,75 @@ public class Solver {
 		solutionPath.enqueue(searchNode.board);
 	}
 	
+	private int mapToVector(int row, int col) {
+		int N = initialBoard.dimension();
+		int offset = (row * N + col);
+		return offset;
+	}
+	
+	private int[] mapFromVector(int offset) {
+		int[] array = new int[2];
+		int N = initialBoard.dimension();
+		int row = (int)(offset / N);
+		int col = offset - (row * N);
+		array[0] = row;
+		array[1] = col;
+		return array;
+	}
+	
 	private void printPath(SearchNode node) {
 		StdOut.print("Priority = " + (node.board.manhattan() + node.searchNodeMoves) + "\n");
 		StdOut.print("Moves = " + node.searchNodeMoves + "\n");
 		StdOut.print("Manhattan = " + node.board.manhattan() + "\n");
 		StdOut.print(node.board.toString());
 	}
+	
+	private void parseBoard() {
+		String boardString = initialBoard.toString();
+		String delim = " ";
+		String[] tokens = boardString.split(delim);
+		Integer[] payload = new Integer[N*N];
+		
+		int k = 0;
+		boolean fixed = false;
+		
+		for (int i = 1; i < tokens.length; i++) {
+			String element = tokens[i];
+			
+			if (i == 1 && !fixed) { // handle glued chars at the beginning of txt file (see puzzle38 and puzzle43)
+				String[] target = tokens[0].split("\n");
+				if (target.length > 1) {
+					element = target[1];
+					fixed = true; // an ugly hack to facilitate a single, i-counter repeat (since we don't want to skip over a number when we handle this gluing
+					i--; // !!
+				}
+			}
+			
+			if (!element.isEmpty() && !element.equals("\n")) {
+				payload[k++] = Integer.parseInt(element.trim());
+			}
+		}
+		
+		for (int i = 0; i < payload.length; i++) {
+			int[] coords = mapFromVector(i);
+			int row = coords[0];
+			int col = coords[1];
+			
+			int value = payload[i];
+			if (value == 0) { // save zero element coordinates; by not assigning zero to tiles, save an array access
+				zeroCoord[0] = row;
+				zeroCoord[1] = col;
+			} else {
+				tiles[row][col] = value;
+			}
+		}
+	}
 
 	public static void main(String[] args) { // solve a slider puzzle (given below)
 		// create initial board from file
-//		In in = new In(args[0]);
+		In in = new In(args[0]);
 //		System.out.println("SOLVER UNIT TEST");
-		In in = new In(INPUT);
+//		In in = new In(INPUT);
 		int N = in.readInt();
 		int[][] blocks = new int[N][N];
 		for (int i = 0; i < N; i++)
