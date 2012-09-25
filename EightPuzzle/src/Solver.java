@@ -8,21 +8,20 @@ import java.util.TreeSet;
  */
 public class Solver {
 	
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt"; // 2x2
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle36.txt"; // 10x10
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle3x3-unsolvable.txt";
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/a.txt";
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle17.txt";
-	private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle05.txt";
-	//private static final String INPUT = "/Dev/git_repo/algorithms_repo/algos/z-algs4-common/data-sets/8puzzle/puzzle20.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle01.txt"; // 2x2
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle04.txt"; // 3x3 (example from assignment paper)
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle36.txt"; // 10x10
+	private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle3x3-unsolvable.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/a.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle17.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle05.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/puzzle20.txt";
+	//private static final String INPUT = "/Dev/workspaces/workspace_juno/Algorithms/algos/z-algs4-common/data-sets/8puzzle/b.txt";
 	
 	private int moves; // number of moves made for this particular puzzle
 	private Board initialBoard; // contains Board received from Solver constructor
-//	private Board twinBoard; // contains a twin of initialBoard used to detect solution infeasibilty
 	private MinPQ<SearchNode> openSet; // priority queue of tentative nodes to be evaluated, initially containing the start search node
 //	private SET<SearchNode> closedSet; // set of visited search nodes
-//	private MinPQ<SearchNode> twinSet; // used to detect infeasible puzzles
 	private TreeSet<SearchNode> cameFrom;
 	private SearchNode finalSearchNode;
 	private Queue<Board> solutionPath;
@@ -33,8 +32,6 @@ public class Solver {
 		this.initialBoard = initial;
 		this.openSet = new MinPQ<SearchNode>();
 //		this.closedSet = new SET<SearchNode>();
-//		this.twinSet = new MinPQ<SearchNode>();
-//		this.twinBoard = initialBoard.twin();
 		this.cameFrom = new TreeSet<SearchNode>();
 		this.moves = 0;
 		solvePuzzle();
@@ -62,14 +59,6 @@ public class Solver {
 				return 1;
 			return 0;
 		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-//		@Override
-//		public String toString() {
-//			return "SearchNode [searchNodeMoves=\n" + searchNodeMoves + ",\n board=" + board.toString() + ",\n previousNode=\n" + previousNode.board.toString() + "]";
-//		}
 	};
 	
 	public boolean isSolvable() { // is the initial board solvable?
@@ -77,47 +66,48 @@ public class Solver {
 		int parity = 0;
 		int N = initialBoard.dimension();
 		int[][] tiles = null;
+		int[] zeroCoord = null;
 		try {
-			Field f = initialBoard.getClass().getDeclaredField("tiles");
-			f.setAccessible(true);
-			tiles = (int[][]) f.get(initialBoard);
+			Field tilesField = initialBoard.getClass().getDeclaredField("tiles");
+			Field zeroCoordsField = initialBoard.getClass().getDeclaredField("zero");
+			tilesField.setAccessible(true);
+			zeroCoordsField.setAccessible(true);
+			tiles = (int[][]) tilesField.get(initialBoard);
+			zeroCoord = (int[]) zeroCoordsField.get(initialBoard);
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
 		} catch (SecurityException e) {
-			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		} catch (IllegalAccessException e) {}
 		
 		int endOffset = mapToVector(N - 1, N - 1);
 		for (int i = 1; i <= endOffset; i++) {
 			int[] coord = mapFromVector(i);
-			int row = coord[0];
-			int col = coord[1];
+//			int row = coord[0];
+//			int col = coord[1];
 //			System.out.println("For offset [" + i + "] coordinates are -> [" + row + ", " + col + "]");
-			int pivotValue = tiles[row][col];
+			int pivotValue = tiles[coord[0]][coord[1]];
+			if (pivotValue == 0) continue;
 			for (int j = (i - 1); j >= 0; j--) {
 				int[] currentCoord = mapFromVector(j);
-				int r = currentCoord[0];
-				int c = currentCoord[1];
-				int currentValue = tiles[r][c];
+//				int r = currentCoord[0];
+//				int c = currentCoord[1];
+				int currentValue = tiles[currentCoord[0]][currentCoord[1]];
 //				System.out.println("Pivot value -> " + pivotValue + "; Current value -> " + currentValue);
-				if (currentValue > pivotValue){
+				if (pivotValue < currentValue){
 					parity++;
-//					StdOut.println("Current < Pivot - parity increase");
-				}
-				if (currentValue == 0) { // add 1 to parity if zero-tile is in row 0 or 2 (and not in 1 or 3)
-					if (r % 2 == 0) {
-						parity++;
-//						StdOut.println("Zero tile in even row -> " + r + "; parity increase!");
-					}
+//					StdOut.println("Pivot < Current - parity increase. Parity is -> " + parity);
 				}
 			}
 		}
+		if ((zeroCoord[0] & 1) == 0) { // add 1 to parity if zero-tile is in row 0 or 2 (and not in 1 or 3)
+			if ((N & 1) == 0) { // thank you, Svetlin Zarev, you rule!!
+				parity++;
+//				StdOut.println("Zero coordinate detected at [" + zeroCoord[0] + ", " + zeroCoord[1] + " - increasing parity.");
+			}
+		}
 
-		solvable = ((parity % 2) == 0); // if disorder is even, board is solvable
+//		StdOut.println("Final parity *** --> " + parity);
+		solvable = ((parity & 1) == 0); // if disorder is even, board is solvable
 		return solvable; 
 	};
 	
@@ -136,7 +126,7 @@ public class Solver {
 		array[1] = col;
 		return array;
 	}
-
+	
 	public int moves() { // min number of moves to solve initial board; -1 if no solution
 		if (!solvable) return -1;
 		return moves;
@@ -163,7 +153,6 @@ public class Solver {
 		if (openSet.isEmpty()) { // inital node construction
 			dequeuedNode = new SearchNode(0, initialBoard, null); 
 			openSet.insert(dequeuedNode);
-//			openSet.insert(new SearchNode(0, twinBoard, null));
 		}
 		
 		while (!openSet.isEmpty()) {
@@ -213,9 +202,6 @@ public class Solver {
 	 */
 	private int getSolutionMoves(SearchNode searchNode) {
 		if (searchNode.previousNode == null) {
-//			if (searchNode.board.equals(twinBoard)) {
-//				solvable = false;
-//			}
 			return 0;
 		}
 		return 1 + getSolutionMoves(searchNode.previousNode);
