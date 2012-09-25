@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 /**
  * @author Erik
  *
@@ -41,7 +39,7 @@ public class Board {
 	/**
 	 * @return number of blocks out of place
 	 */
-	public int hamming() { // 
+	public int hamming() {
 		return hammingDistance;
 	};
 
