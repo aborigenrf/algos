@@ -1,4 +1,4 @@
-Algos code alcove
+Algos repository
 =================
 
 This repository contains various algorithm implementations and code solutions to interesting problems.
